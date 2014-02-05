@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+	<style>
+
+
+	</style>
+  </head>
+  <body>
+    <h1>KDM Lab2 Assignment on Web-Services</h1>
+	<hr />
+	<div class="container">
+		<div class="row">
+			<div class="span6 pull-left">
+				<div class="thumbnail">
+					<h4>Currency Converter</h4>
+						 <form class="bs-docs-example form-inline">
+							<div class="row-fluid pager">
+								<select class="input-medium bfh-currencies span4" id="from_currency" ></select>
+								<select class="input-medium bfh-currencies span4" id="to_currency"></select>
+							</div>
+							<div class="row-fluid pager">
+								<input class="input-medium" id="amount" placeholder="Enter the Amount" value="1">
+								<input type="button" id="convert" value="convert" class="btn">
+							</div>
+							
+							<div class="row-fluid pager">
+								<p>Exchange Rate: <span id="ex_rate1"></span><input class="input-medium" placeholder="Exchange Rate" id="ex_rate"></p>
+								<p>Final Amount: <span id="final_amount1"></span><input class="input-medium" placeholder="Fianl Amount" id="final_amount"></p>
+							</div>
+						</form>
+				</div>
+			</div>
+			<div class="span6 pull-right">
+				
+				
+				
+				 <div id="panel">
+				<b>Start: </b>
+				<select id="start" onchange="calcRoute();">
+				  <option value="chicago, il">Chicago</option>
+				  <option value="st louis, mo">St Louis</option>
+				  <option value="joplin, mo">Joplin, MO</option>
+				  <option value="oklahoma city, ok">Oklahoma City</option>
+				  <option value="amarillo, tx">Amarillo</option>
+				  <option value="gallup, nm">Gallup, NM</option>
+				  <option value="flagstaff, az">Flagstaff, AZ</option>
+				  <option value="winona, az">Winona</option>
+				  <option value="kingman, az">Kingman</option>
+				  <option value="barstow, ca">Barstow</option>
+				  <option value="san bernardino, ca">San Bernardino</option>
+				  <option value="los angeles, ca">Los Angeles</option>
+				</select>
+				<b>End: </b>
+				<select id="end" onchange="calcRoute();">
+				  <option value="chicago, il">Chicago</option>
+				  <option value="st louis, mo">St Louis</option>
+				  <option value="joplin, mo">Joplin, MO</option>
+				  <option value="oklahoma city, ok">Oklahoma City</option>
+				  <option value="amarillo, tx">Amarillo</option>
+				  <option value="gallup, nm">Gallup, NM</option>
+				  <option value="flagstaff, az">Flagstaff, AZ</option>
+				  <option value="winona, az">Winona</option>
+				  <option value="kingman, az">Kingman</option>
+				  <option value="barstow, ca">Barstow</option>
+				  <option value="san bernardino, ca">San Bernardino</option>
+				  <option value="los angeles, ca">Los Angeles</option>
+				</select>
+				</div>
+				<hr />
+				<div id="map-canvas" style="height: 300px; width: 400px;" class="span4"></div>
+				<hr />
+				
+			</div>
+		</div>
+	</div>
+	
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+	<script src="js/bootstrap-formhelpers-currencies.en_US.js"></script>
+    <script src="js/bootstrap-formhelpers-currencies.js"></script>
+	 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+	 
+	 
+	<script type="text/javascript">
+		$('#convert').on("click", function(e) {
+			var base = $("#from_currency").val();
+			var destination = $("#to_currency").val();
+			var amount = $("#amount").val();
+            var amt = 1;
+			$.ajax({
+				url: "http://openexchangerates.org/api/latest.json?app_id=1dc64d2b2fd54b28836ca690570be3c6",
+				dataType: 'jsonp',
+				success: function(result){
+                    console.log("one");
+					var converted_amount=(amt/result.rates[base])*result.rates[destination];
+                    var final_amount=(amount/result.rates[base])*result.rates[destination];
+					$("#ex_rate").val(converted_amount);
+                    $("#final_amount").val(final_amount);
+				}
+			});
+		});
+		
+		
+		
+		var directionsDisplay;
+		var directionsService = new google.maps.DirectionsService();
+		var map;
+
+		function initialize() {
+		  directionsDisplay = new google.maps.DirectionsRenderer();
+		  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+		  var mapOptions = {
+			zoom:7,
+			center: chicago
+		  }
+		  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+		  directionsDisplay.setMap(map);
+		}
+
+		function calcRoute() {
+		  var start = document.getElementById('start').value;
+		  var end = document.getElementById('end').value;
+		  var request = {
+			  origin:start,
+			  destination:end,
+			  travelMode: google.maps.TravelMode.DRIVING
+		  };
+		  directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  directionsDisplay.setDirections(response);
+			}
+		  });
+		}
+
+		google.maps.event.addDomListener(window, 'load', initialize);
+
+		
+      </script>
+	
+  </body>
+</html>
