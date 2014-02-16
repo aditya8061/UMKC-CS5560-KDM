@@ -1,29 +1,88 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <title>Google Maps</title>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAPDUET0Qt7p2VcSk6JNU1sBSM5jMcmVqUpI7aqV44cW1cEECiThQYkcZUPRJn9vy_TWxWvuLoOfSFBw" type="text/javascript"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
   </head>
   <body onunload="GUnload()">
+  
+  
+	<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel"></h4>
+      </div>
+      <div class="modal-body" id="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+    <h4 class="bg-success center-block btn" style="margin-top: 0px;"><strong>BIP Info</strong></h4>
+	<p class="bg-warning btn center-block">what is BIP</p>
+	
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12" id="map" style="height: 500px">
+			</div>
+		</div>
+	</div>
 
-
-    <div id="map" style="width: 800px; height: 600px"></div>
-    <a href="inside.htm">Back to the tutorial page</a>
-
-
-    <noscript><b>JavaScript must be enabled in order for you to use Google Maps.</b> 
-      However, it seems JavaScript is either disabled or not supported by your browser. 
-      To view Google Maps, enable JavaScript by changing your browser options, and then 
-      try again.
-    </noscript>
- 
-
-    <script type="text/javascript">
+	
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAPDUET0Qt7p2VcSk6JNU1sBSM5jMcmVqUpI7aqV44cW1cEECiThQYkcZUPRJn9vy_TWxWvuLoOfSFBw" type="text/javascript"></script>
+	
+	<script type="text/javascript">
     //<![CDATA[
 
+	var data;
 	function getBIPInfo(location) {
 		console.log("Retrieving info:: " + location);
+
+		ajaxURL = "//www.broadbandmap.gov/broadbandmap/bip/states/"+ location +"?format=jsonp";
+		$("#myModalLabel").text(location);
+		$.ajax({
+				url: ajaxURL,
+				dataType: 'jsonp',
+				success: function(result){
+						for(var i=0; i < result.Results.length ; i++ ) {
+							if(data == undefined)
+								data = "";								
+							else{
+							
+								data += "Geography ID: " + result.Results[i].geographyId;
+							data = data + "<br>Geography Name: " + result.Results[i].geographyName;
+							data = data + "<br><strong>Applicant Name: " + result.Results[i].applicantName + "</strong>";
+							data = data + "<br>Grant Request: " + result.Results[i].grantRequest;
+							data = data + "<br>Loan Request: " + result.Results[i].loanRequest;
+							data = data + "<br><strong>Total Request: " + result.Results[i].totalRequest + "</strong>";
+							data += "<br><hr>";
+							}
+						}
+						$("#modal-body").html(data);
+				}
+			});
 	}
 	
     if (GBrowserIsCompatible()) {
@@ -55,8 +114,6 @@
         return oddNodes;
       }
 
-
-
       // Display the map, with some controls and set the initial location 
       var map = new GMap2(document.getElementById("map"));
       map.addControl(new GLargeMapControl());
@@ -68,8 +125,9 @@
         if (!overlay) {
           for (var i=0; i<polys.length; i++) {
             if (polys[i].Contains(point)) {
-              map.openInfoWindowHtml(point,"You clicked on "+labels[i]);
-			  getBIPInfo(labels[i]);
+				var test = getBIPInfo(labels[i]);
+				map.openInfoWindowHtml(point,"You clicked on "+labels[i]);
+			    $('#myModal').modal();
               //i = 999; // Jump out of loop
             }
           }
@@ -120,5 +178,4 @@
     //]]>
     </script>
   </body>
-
 </html>
